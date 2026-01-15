@@ -1,0 +1,41 @@
+# Code Owners for Dynamics 365 Monorepo
+
+# Default owners for everything in the repo
+# These owners will be requested for review when someone opens a PR
+* @ivoarnet
+
+# Plugins - .NET Backend Team
+/plugins/ @ivoarnet
+/plugins/**/*.cs @ivoarnet
+
+# PCF Components - Frontend Team
+/pcf/ @ivoarnet
+/pcf/**/*.ts @ivoarnet
+/pcf/**/*.tsx @ivoarnet
+
+# Client Scripts - Frontend Team
+/client-scripts/ @ivoarnet
+/client-scripts/**/*.ts @ivoarnet
+
+# Azure Functions - Integration Team
+/functions/ @ivoarnet
+/functions/**/*.cs @ivoarnet
+
+# Terraform - DevOps Team
+/terraform/ @ivoarnet
+/terraform/**/*.tf @ivoarnet
+
+# Solutions - Platform Team
+/solutions/ @ivoarnet
+
+# CI/CD Workflows - DevOps Team
+/.github/workflows/ @ivoarnet
+
+# Documentation - All Team Leads
+/docs/ @ivoarnet
+/docs/architecture/ @ivoarnet
+/docs/standards/ @ivoarnet
+
+# Root configuration files - DevOps Team
+/.gitignore @ivoarnet
+/README.md @ivoarnet

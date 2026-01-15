@@ -1,0 +1,206 @@
+# Dynamics 365 / Power Platform .gitignore
+
+# ===================================
+# .NET / C# (Plugins, Functions)
+# ===================================
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio cache/options
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+
+## NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Strong name key files (security)
+*.snk
+*.pfx
+
+# ===================================
+# Node.js / TypeScript (PCF, Client Scripts)
+# ===================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+
+## Build outputs
+dist/
+build/
+out/
+*.js.map
+*.d.ts.map
+
+## PCF specific
+**/generated/
+**/bundle.js
+
+# ===================================
+# Terraform
+# ===================================
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+*.tfvars
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# ===================================
+# Azure Functions
+# ===================================
+local.settings.json
+*.azurefunctions*
+
+# ===================================
+# Dataverse / Power Platform
+# ===================================
+## Solution packed files (keep unpacked only)
+solutions/**/*.zip
+!solutions/managed/*.zip
+
+## Connection references (environment-specific)
+**/connections.json
+
+## Plugin Registration Tool
+PluginRegistration.log
+
+# ===================================
+# OS / Editor
+# ===================================
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+## Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+## Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+## JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+## VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ===================================
+# Secrets & Credentials
+# ===================================
+*.env
+.env.*
+secrets.json
+appsettings.Development.json
+appsettings.Local.json
+*.key
+*.pem
+*.cer
+*.crt
+
+# ===================================
+# Logs
+# ===================================
+*.log
+logs/
+*.log.*
+
+# ===================================
+# Temporary Files
+# ===================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.cache
+*.bak
+*.swp
+*.swo
+*~
+
+# ===================================
+# Deployment / Package Files
+# ===================================
+*.publish.xml
+*.publishsettings
+*.pubxml
+*.pubxml.user
+*.azurePubxml
+
+# ===================================
+# Documentation (keep README files)
+# ===================================
+# Allow README files
+!README.md
+!readme.md
+
+# ===================================
+# Other
+# ===================================
+.history/
+*.pid
+*.seed
+*.pid.lock
