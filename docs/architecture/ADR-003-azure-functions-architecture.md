@@ -363,6 +363,164 @@ namespace IntegrationApi.Functions
 
 ---
 
+## Pragmatic Implementation Strategy
+
+### Start Simple, Evolve as Needed
+
+**The hybrid approach should NOT be implemented all at once.** Instead, follow a phased approach that starts simple and adds complexity only when justified.
+
+### Phase 1: Start with Feature-Oriented (Recommended for Most Teams)
+
+**Initial monorepo structure:**
+
+```
+functions/
+└── src/
+    └── IntegrationApi/              # Feature-oriented (Approach B)
+        ├── Functions/
+        │   ├── AccountFunctions.cs
+        │   └── ContactFunctions.cs
+        ├── Models/
+        ├── Services/
+        │   └── DataverseService.cs
+        └── Program.cs
+```
+
+**Why start here:**
+- ✅ **Lower initial complexity** - One Function App, straightforward structure
+- ✅ **Faster time-to-value** - Deliver integration endpoints quickly
+- ✅ **Easier onboarding** - New developers productive immediately
+- ✅ **Validates requirements** - Learn what you actually need before over-engineering
+- ✅ **Aligns with YAGNI** - Don't build abstractions you might not need
+
+**When this is sufficient:**
+- You're building CRUD endpoints and simple integrations
+- Business logic is thin (validation, basic transformations)
+- Team is small (< 5 developers)
+- No immediate reusability requirements
+
+### Phase 2: Extract Complex Logic When It Emerges
+
+**Add Clean Architecture only when you identify:**
+- Business logic exceeding 200-300 lines in a function
+- Logic that needs to be reused (e.g., pricing calculation needed in both Functions and plugins)
+- Complex domain rules that deserve isolated testing
+- Logic that's difficult to test with integration tests
+
+**Evolved structure:**
+
+```
+functions/
+└── src/
+    ├── PriceCalculator.Core/        # NEW: Extracted complex logic
+    │   ├── Abstractions/
+    │   ├── Models/
+    │   └── Services/
+    │       └── PriceCalculator.cs
+    │
+    ├── PriceCalculator.Infrastructure/ # NEW: Dataverse integration
+    │   └── Repositories/
+    │
+    ├── PriceCalculatorFunctions/    # NEW: Thin orchestration
+    │   └── Functions/
+    │
+    └── IntegrationApi/              # EXISTING: Stays simple
+        └── Functions/
+```
+
+### Phase 3 (Optional): Multiple Repos When Scale Demands It
+
+**Consider separate repositories when:**
+- Core pricing/rules logic is consumed by 3+ applications
+- Different teams own integration endpoints vs. domain logic
+- Versioning requirements diverge (Core library on semver, integrations on continuous deployment)
+- Team grows beyond 15-20 developers
+- Compliance requires strict isolation
+
+**Multi-repo structure:**
+
+```
+Repository 1: core-pricing-engine (separate repo)
+└── src/
+    ├── PriceCalculator.Core/
+    ├── PriceCalculator.Infrastructure/
+    └── PriceCalculator.Tests/
+    
+Repository 2: test-msd-monorepo (this monorepo)
+└── functions/
+    └── src/
+        ├── PriceCalculatorFunctions/  # References core-pricing-engine NuGet package
+        └── IntegrationApi/            # Feature-oriented
+```
+
+**Trade-offs of separate repo:**
+- ✅ Independent versioning and release cycles
+- ✅ Clear ownership boundaries
+- ✅ Focused CI/CD pipelines
+- ❌ Cross-repo refactoring is harder
+- ❌ Developers need to clone multiple repos
+- ❌ Version coordination overhead
+- ❌ Reduced GitHub Copilot context
+
+### Recommendation for Your Monorepo
+
+Based on ADR-001 (Monorepo Strategy), **we recommend staying in the monorepo for Phases 1-2**:
+
+1. **Start with Phase 1** - Feature-oriented IntegrationApi (already exists)
+2. **Move to Phase 2 only when you need it** - Extract complex logic when:
+   - You identify reusable business logic (pricing, rules)
+   - Integration tests become too complex
+   - Business logic needs to be shared across plugins, canvas apps, or other Function Apps
+3. **Consider Phase 3 only if** - Team scale or organizational boundaries require it
+
+### Addressing Complexity Concerns
+
+**Q: Does the hybrid approach make things more complex?**
+
+A: Only if implemented prematurely. The hybrid approach is an **end state** for mature projects, not a starting point.
+
+**Complexity is added incrementally:**
+- Phase 1 → Simple feature-oriented (low complexity)
+- Phase 2 → Add Clean Architecture when justified by business logic (controlled complexity)
+- Phase 3 → Separate repo when scale demands it (organizational complexity)
+
+**Key principle:** Start simple, refactor when you feel the pain.
+
+### When NOT to Use Hybrid in Monorepo
+
+❌ **Skip the hybrid approach if:**
+- You only have CRUD endpoints (stay feature-oriented)
+- Team size < 3 developers (overhead not justified)
+- No complex business logic expected (YAGNI)
+- Integration endpoints are the only requirement
+
+✅ **Use hybrid in monorepo when:**
+- You have identified reusable business logic
+- Logic is complex enough to warrant isolated testing
+- Multiple applications will consume the same domain logic
+- You want to keep everything in one repo for Copilot context and shared governance (per ADR-001)
+
+### Decision Tree: Where to Put Logic
+
+```
+New functionality needed
+├─ Is it primarily CRUD/integration?
+│   ├─ YES → Add to IntegrationApi (Phase 1)
+│   └─ NO → Continue...
+│
+├─ Does it contain complex business logic?
+│   ├─ NO → Add to IntegrationApi (Phase 1)
+│   └─ YES → Continue...
+│
+├─ Will it be reused elsewhere?
+│   ├─ NO → Start in IntegrationApi, extract later if needed
+│   └─ YES → Continue...
+│
+└─ Create/use Core + Infrastructure (Phase 2)
+```
+
+---
+
 ## Implementation Guidelines
 
 ### For Approach A (Clean Architecture)
@@ -471,11 +629,21 @@ Both approaches support Microsoft's recommendations:
 
 ### Practical Recommendation
 
-1. **Start with Approach B** for new Function Apps with simple requirements
-2. **Use Approach A** from the start for known complex business logic
-3. **Refactor to Approach A** when complexity grows
-4. **Maintain both approaches** in monorepo for different use cases
-5. **Share Core logic** across multiple Function Apps when appropriate
+**Follow the phased implementation strategy** (see "Pragmatic Implementation Strategy" section above):
+
+1. **Phase 1 (Start Here)**: Feature-oriented IntegrationApi for all new endpoints
+   - Keep it simple - one Function App with feature grouping
+   - Build CRUD endpoints and simple integrations
+   - No premature abstraction
+2. **Phase 2 (When Needed)**: Extract complex logic to Clean Architecture
+   - Only when you identify reusable business logic (pricing, rules, calculations)
+   - When integration tests become too complex
+   - When logic exceeds 200-300 lines in a function
+3. **Phase 3 (Optional)**: Consider separate repository
+   - Only if team scale, versioning, or compliance demands it
+   - Most teams should stay in monorepo (per ADR-001)
+
+**Default stance**: Start with Approach B (feature-oriented), evolve to hybrid (Phase 2) only when justified by actual complexity.
 
 ---
 
@@ -496,6 +664,7 @@ Both approaches support Microsoft's recommendations:
 3. Should we establish a **threshold** (LOC, complexity) for mandatory Approach A?
 4. How do we **document architectural choices** at the Function App level?
 5. Should we create **templates** for both approaches?
+6. **At what point should complex logic move to a separate repository?** (Answered in "Pragmatic Implementation Strategy" - prefer monorepo per ADR-001 unless scale demands otherwise)
 
 ### Next Steps
 
