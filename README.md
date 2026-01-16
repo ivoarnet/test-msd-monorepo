@@ -26,7 +26,7 @@ This monorepo contains all components for our Dynamics 365 / Dataverse solution:
 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| **[Plugins](/plugins)** | .NET 6+ | Server-side business logic (plugins, custom APIs) |
+| **[Plugins](/plugins)** | .NET 8+ | Server-side business logic (plugins, custom APIs) |
 | **[PCF](/pcf)** | TypeScript, React | Custom UI controls (PowerApps Component Framework) |
 | **[Client Scripts](/client-scripts)** | TypeScript | Form and ribbon customizations |
 | **[Azure Functions](/functions)** | .NET/Node.js | Integration APIs and background processing |
@@ -63,7 +63,7 @@ See [ADR-002: Folder Structure](/docs/architecture/ADR-002-folder-structure.md) 
 ### Prerequisites
 
 - **Node.js**: 18+ (for PCF, client scripts)
-- **.NET SDK**: 6.0+ (for plugins, Azure Functions)
+- **.NET SDK**: 8.0+ (for plugins, Azure Functions)
 - **Power Platform CLI**: Latest version
 - **Terraform**: 1.5+ (for infrastructure)
 - **Azure CLI**: Latest version
@@ -130,7 +130,7 @@ cd functions && dotnet test && cd ..
 - Custom APIs for specialized operations
 - [Learn more →](/plugins/README.md)
 
-**Key Technologies**: .NET 6+, Microsoft.CrmSdk.CoreAssemblies, IPlugin
+**Key Technologies**: .NET 8+, Microsoft.CrmSdk.CoreAssemblies, IPlugin
 
 ---
 

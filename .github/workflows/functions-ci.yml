@@ -13,7 +13,7 @@ on:
       - '.github/workflows/functions-ci.yml'
 
 env:
-  DOTNET_VERSION: '6.0.x'
+  DOTNET_VERSION: '8.0.x'
   AZURE_FUNCTIONAPP_NAME: 'func-dynamics-dev'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'functions'
 

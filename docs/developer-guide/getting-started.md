@@ -16,7 +16,7 @@ Welcome to the team! This guide will help you set up your development environmen
    - [Download Node.js](https://nodejs.org/)
    - Verify: `node --version` and `npm --version`
 
-3. **.NET SDK** (6.0 or higher)
+3. **.NET SDK** (8.0 or higher)
    - [Download .NET](https://dotnet.microsoft.com/download)
    - Verify: `dotnet --version`
 
@@ -274,7 +274,7 @@ git push origin feature/my-first-feature
 ### Issue: `dotnet restore` fails
 
 **Solution**: 
-- Ensure .NET SDK 6.0+ is installed
+- Ensure .NET SDK 8.0+ is installed
 - Clear NuGet cache: `dotnet nuget locals all --clear`
 - Check for proxy/firewall issues
 
