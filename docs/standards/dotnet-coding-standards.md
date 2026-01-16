@@ -18,9 +18,13 @@ These standards ensure consistent, maintainable, and high-quality .NET code acro
 
 ### Plugin Structure
 
-All plugins should inherit from a base plugin class:
+All plugins should inherit from a base plugin class that uses the modern LocalPluginContext pattern:
 
 ```csharp
+/// <summary>
+/// Base class for all plugins using the modern LocalPluginContext pattern.
+/// This approach provides better access to plugin context and services.
+/// </summary>
 public abstract class PluginBase : IPlugin
 {
     protected string UnsecureConfig { get; }
@@ -34,54 +38,128 @@ public abstract class PluginBase : IPlugin
 
     public void Execute(IServiceProvider serviceProvider)
     {
-        var tracingService = (ITracingService)serviceProvider.GetService(typeof(ITracingService));
-        var context = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+        if (serviceProvider == null)
+        {
+            throw new ArgumentNullException(nameof(serviceProvider));
+        }
+
+        // Use LocalPluginContext to encapsulate plugin services
+        var localContext = new LocalPluginContext(serviceProvider);
 
         try
         {
-            tracingService.Trace($"Executing {GetType().Name}");
-            ExecutePlugin(serviceProvider, tracingService, context);
+            localContext.Trace($"Executing {GetType().Name}");
+            
+            // Log context summary for better debugging (available in IPluginExecutionContext4)
+            if (localContext.PluginExecutionContext is IPluginExecutionContext4 context4)
+            {
+                localContext.Trace($"Context Summary: {context4.ContextSummary}");
+            }
+            
+            ExecutePlugin(localContext);
+        }
+        catch (InvalidPluginExecutionException)
+        {
+            // Re-throw plugin execution exceptions as-is
+            throw;
         }
         catch (Exception ex)
         {
-            tracingService.Trace($"Exception: {ex.Message}");
+            localContext.Trace($"Exception: {ex.Message}");
+            localContext.Trace($"Stack Trace: {ex.StackTrace}");
             throw new InvalidPluginExecutionException($"Error in {GetType().Name}: {ex.Message}", ex);
         }
     }
 
-    protected abstract void ExecutePlugin(
-        IServiceProvider serviceProvider,
-        ITracingService tracingService,
-        IPluginExecutionContext context);
+    protected abstract void ExecutePlugin(LocalPluginContext localContext);
 }
-```
 
-### Service Locator Pattern
-
-Extract service retrieval into helper:
-
-```csharp
-public class ServiceProvider
+/// <summary>
+/// LocalPluginContext encapsulates plugin services and provides easy access to them.
+/// This is the modern pattern recommended by Microsoft.
+/// </summary>
+public class LocalPluginContext
 {
     private readonly IServiceProvider _serviceProvider;
+    private IPluginExecutionContext _pluginExecutionContext;
+    private IOrganizationServiceFactory _organizationServiceFactory;
+    private ITracingService _tracingService;
 
-    public ServiceProvider(IServiceProvider serviceProvider)
+    public LocalPluginContext(IServiceProvider serviceProvider)
     {
-        _serviceProvider = serviceProvider;
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
-    public IOrganizationService GetOrganizationService(Guid? userId = null)
+    /// <summary>
+    /// Gets the plugin execution context (cached).
+    /// </summary>
+    public IPluginExecutionContext PluginExecutionContext
     {
-        var serviceFactory = (IOrganizationServiceFactory)_serviceProvider.GetService(typeof(IOrganizationServiceFactory));
-        return serviceFactory.CreateOrganizationService(userId);
+        get
+        {
+            if (_pluginExecutionContext == null)
+            {
+                _pluginExecutionContext = (IPluginExecutionContext)_serviceProvider.GetService(typeof(IPluginExecutionContext));
+            }
+            return _pluginExecutionContext;
+        }
     }
 
-    public ITracingService GetTracingService()
+    /// <summary>
+    /// Gets the tracing service (cached).
+    /// </summary>
+    public ITracingService TracingService
     {
-        return (ITracingService)_serviceProvider.GetService(typeof(ITracingService));
+        get
+        {
+            if (_tracingService == null)
+            {
+                _tracingService = (ITracingService)_serviceProvider.GetService(typeof(ITracingService));
+            }
+            return _tracingService;
+        }
+    }
+
+    /// <summary>
+    /// Gets the organization service factory (cached).
+    /// </summary>
+    public IOrganizationServiceFactory OrganizationServiceFactory
+    {
+        get
+        {
+            if (_organizationServiceFactory == null)
+            {
+                _organizationServiceFactory = (IOrganizationServiceFactory)_serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            }
+            return _organizationServiceFactory;
+        }
+    }
+
+    /// <summary>
+    /// Gets the organization service for the current user.
+    /// </summary>
+    public IOrganizationService OrganizationService => OrganizationServiceFactory.CreateOrganizationService(PluginExecutionContext.UserId);
+
+    /// <summary>
+    /// Gets the organization service for the system user (elevated privileges).
+    /// Use with caution - bypasses user security.
+    /// </summary>
+    public IOrganizationService SystemOrganizationService => OrganizationServiceFactory.CreateOrganizationService(null);
+
+    /// <summary>
+    /// Writes a trace message.
+    /// </summary>
+    public void Trace(string message)
+    {
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            TracingService?.Trace($"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} - {message}");
+        }
     }
 }
 ```
+
+**⚠️ Deprecated Pattern Warning**: The old pattern of directly calling `GetService(typeof(...))` in the Execute method and passing individual services to ExecutePlugin is still functional but considered outdated. The LocalPluginContext pattern provides better encapsulation and testability.
 
 ---
 
@@ -101,21 +179,44 @@ public class ServiceProvider
 ### Examples
 
 ```csharp
-// ✅ Good
+// ✅ Good - using modern LocalPluginContext pattern
 public class AccountCreatePlugin : PluginBase
 {
-    protected override void ExecutePlugin(IServiceProvider serviceProvider, ITracingService tracingService, IPluginExecutionContext context)
+    public AccountCreatePlugin(string unsecureConfig, string secureConfig)
+        : base(unsecureConfig, secureConfig)
     {
-        var account = GetTargetEntity<Account>(context);
-        ValidateAccountName(account);
     }
 
-    private void ValidateAccountName(Account account)
+    protected override void ExecutePlugin(LocalPluginContext localContext)
+    {
+        localContext.Trace("Starting account validation");
+        
+        var context = localContext.PluginExecutionContext;
+        var account = GetTargetEntity<Account>(context);
+        
+        ValidateAccountName(account, localContext);
+    }
+
+    private void ValidateAccountName(Account account, LocalPluginContext localContext)
     {
         if (string.IsNullOrWhiteSpace(account.Name))
         {
+            localContext.Trace("Account name validation failed");
             throw new InvalidPluginExecutionException("Account name is required.");
         }
+        
+        localContext.Trace("Account name validation passed");
+    }
+    
+    private Account GetTargetEntity<T>(IPluginExecutionContext context) where T : Entity
+    {
+        if (context.InputParameters.Contains("Target") && 
+            context.InputParameters["Target"] is Entity entity)
+        {
+            return entity.ToEntity<T>();
+        }
+        
+        throw new InvalidPluginExecutionException("Target entity not found.");
     }
 }
 
@@ -138,23 +239,30 @@ public class Plugin1 : IPlugin
 Always validate plugin context and input data:
 
 ```csharp
-protected override void ExecutePlugin(IServiceProvider serviceProvider, ITracingService tracingService, IPluginExecutionContext context)
+protected override void ExecutePlugin(LocalPluginContext localContext)
 {
+    var context = localContext.PluginExecutionContext;
+    
+    localContext.Trace($"Message: {context.MessageName}, Stage: {context.Stage}, Entity: {context.PrimaryEntityName}");
+    
     // Validate context
     if (context.InputParameters == null || !context.InputParameters.Contains("Target"))
     {
+        localContext.Trace("Target parameter is missing - exiting");
         throw new InvalidPluginExecutionException("Target parameter is missing.");
     }
 
     // Validate message name
     if (context.MessageName != "Create")
     {
+        localContext.Trace($"Unexpected message: {context.MessageName} - exiting");
         return; // Exit early if wrong message
     }
 
     // Validate stage
     if (context.Stage != 20) // Pre-operation
     {
+        localContext.Trace($"Unexpected stage: {context.Stage} - exiting");
         return;
     }
 
@@ -162,11 +270,12 @@ protected override void ExecutePlugin(IServiceProvider serviceProvider, ITracing
     var target = context.InputParameters["Target"] as Entity;
     if (target == null || target.LogicalName != "account")
     {
+        localContext.Trace($"Invalid target entity - exiting");
         return;
     }
 
     // Now safe to proceed
-    ValidateAccount(target);
+    ValidateAccount(target, localContext);
 }
 ```
 
@@ -176,12 +285,14 @@ protected override void ExecutePlugin(IServiceProvider serviceProvider, ITracing
 // ✅ Good - specific exceptions with context
 try
 {
-    var service = serviceFactory.CreateOrganizationService(context.UserId);
+    var service = localContext.OrganizationService;
     service.Update(entity);
+    localContext.Trace("Entity updated successfully");
 }
 catch (FaultException<OrganizationServiceFault> ex)
 {
-    tracingService.Trace($"Dataverse error: {ex.Detail.Message}");
+    localContext.Trace($"Dataverse error: {ex.Detail.Message}");
+    localContext.Trace($"Error code: {ex.Detail.ErrorCode}");
     throw new InvalidPluginExecutionException($"Failed to update record: {ex.Detail.Message}", ex);
 }
 
@@ -201,19 +312,21 @@ catch
 Use tracing extensively for production debugging:
 
 ```csharp
-tracingService.Trace("Starting account validation");
-tracingService.Trace($"Account ID: {account.Id}, Name: {account.Name}");
+localContext.Trace("Starting account validation");
+localContext.Trace($"Account ID: {account.Id}, Name: {account.Name}");
 
 if (account.Name.Length > 100)
 {
-    tracingService.Trace("Account name exceeds max length");
+    localContext.Trace("Account name exceeds max length");
     throw new InvalidPluginExecutionException("Account name must be 100 characters or less.");
 }
 
-tracingService.Trace("Account validation passed");
+localContext.Trace("Account validation passed");
 ```
 
 **⚠️ Never trace sensitive data**: Passwords, API keys, credit card numbers, etc.
+
+**💡 Tip**: Use `IPluginExecutionContext4.ContextSummary` for improved debugging - it provides a comprehensive summary of the plugin execution context including pipeline stage, message, and entity information.
 
 ---
 
@@ -291,10 +404,11 @@ foreach (var entity in entities)
 
 ```csharp
 // User context (respects security roles)
-var userService = serviceFactory.CreateOrganizationService(context.UserId);
+var userService = localContext.OrganizationService;
 
 // System context (bypasses security - use cautiously)
-var systemService = serviceFactory.CreateOrganizationService(null);
+var systemService = localContext.SystemOrganizationService;
+```
 ```
 
 ### 2. Validate Permissions
@@ -371,7 +485,7 @@ foreach (var contact in contacts)
 
 Before submitting a PR, verify:
 
-- [ ] Plugin inherits from `PluginBase`
+- [ ] Plugin inherits from `PluginBase` using LocalPluginContext pattern
 - [ ] Input validation present (context, entity, attributes)
 - [ ] Tracing statements added for debugging
 - [ ] No sensitive data logged
@@ -382,6 +496,94 @@ Before submitting a PR, verify:
 - [ ] No hardcoded credentials or environment-specific values
 - [ ] Unit tests added/updated
 - [ ] Performance considered (batch operations for loops)
+- [ ] No deprecated patterns (direct `GetService(typeof(...))` calls in Execute method)
+- [ ] Uses `IPluginExecutionContext4.ContextSummary` for enhanced debugging where applicable
+
+---
+
+## ⚠️ Deprecated Patterns
+
+### Old Pattern: Direct Service Retrieval (Deprecated)
+
+The traditional pattern of directly calling `GetService(typeof(...))` in the Execute method is still functional but outdated:
+
+```csharp
+// ❌ Deprecated Pattern
+public void Execute(IServiceProvider serviceProvider)
+{
+    // Repeated GetService calls - harder to test and maintain
+    var tracingService = (ITracingService)serviceProvider.GetService(typeof(ITracingService));
+    var context = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+    var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+    var orgService = serviceFactory.CreateOrganizationService(context.UserId);
+    
+    try
+    {
+        tracingService.Trace("Executing plugin");
+        // Business logic
+    }
+    catch (Exception ex)
+    {
+        tracingService.Trace($"Error: {ex.Message}");
+        throw;
+    }
+}
+```
+
+### Modern Pattern: LocalPluginContext (Recommended)
+
+The modern approach uses LocalPluginContext for better encapsulation and testability:
+
+```csharp
+// ✅ Modern Pattern
+public void Execute(IServiceProvider serviceProvider)
+{
+    var localContext = new LocalPluginContext(serviceProvider);
+    
+    try
+    {
+        localContext.Trace($"Executing {GetType().Name}");
+        
+        // Enhanced debugging with IPluginExecutionContext4
+        if (localContext.PluginExecutionContext is IPluginExecutionContext4 context4)
+        {
+            localContext.Trace($"Context: {context4.ContextSummary}");
+        }
+        
+        ExecutePlugin(localContext);
+    }
+    catch (InvalidPluginExecutionException)
+    {
+        throw;
+    }
+    catch (Exception ex)
+    {
+        localContext.Trace($"Error: {ex.Message}");
+        throw new InvalidPluginExecutionException($"Error in {GetType().Name}: {ex.Message}", ex);
+    }
+}
+
+protected abstract void ExecutePlugin(LocalPluginContext localContext);
+```
+
+### Benefits of Modern Pattern
+
+1. **Better Encapsulation**: Services are properties of LocalPluginContext, not scattered across your code
+2. **Lazy Loading**: Services are instantiated only when needed
+3. **Caching**: Services are cached for reuse during plugin execution
+4. **Testability**: LocalPluginContext can be mocked for unit testing
+5. **Enhanced Debugging**: Easy access to `IPluginExecutionContext4.ContextSummary`
+6. **Cleaner Code**: Single entry point for all plugin services
+7. **Maintainability**: Centralized service management
+
+### Migration Guide
+
+To migrate existing plugins:
+
+1. Update PluginBase to use LocalPluginContext pattern (see Plugin Structure section above)
+2. Change ExecutePlugin signature to accept `LocalPluginContext` instead of individual services
+3. Access services through `localContext.OrganizationService`, `localContext.Trace()`, etc.
+4. Update all plugin implementations to use the new signature
 
 ---
 
@@ -452,6 +654,8 @@ The repository includes `.editorconfig` to enforce:
 - [Microsoft Dataverse Plugin Development](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/plug-ins)
 - [Microsoft C# Coding Conventions](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions)
 - [Plugin Best Practices](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/best-practices/business-logic/)
+- [Understanding the Data Context](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/understand-the-data-context)
+- [IPluginExecutionContext Interface](https://learn.microsoft.com/en-us/dotnet/api/microsoft.xrm.sdk.ipluginexecutioncontext)
 
 ---
 
