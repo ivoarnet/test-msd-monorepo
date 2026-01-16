@@ -155,12 +155,12 @@ curl -X DELETE http://localhost:7071/api/accounts/{id}?code=YOUR_FUNCTION_KEY
 
 ## Dependencies
 
-Key NuGet packages:
+Key NuGet packages (see IntegrationApi.csproj for current versions):
 
-- **Microsoft.Azure.Functions.Worker** (v1.21.0): Core Functions worker
-- **Microsoft.Azure.Functions.Worker.Extensions.Http** (v3.1.0): HTTP trigger support
-- **Microsoft.Azure.Functions.Worker.Extensions.OpenApi** (v1.5.1): OpenAPI documentation
-- **Microsoft.Azure.Functions.Worker.Sdk** (v1.17.0): Build-time SDK
+- **Microsoft.Azure.Functions.Worker**: Core Functions worker
+- **Microsoft.Azure.Functions.Worker.Extensions.Http**: HTTP trigger support
+- **Microsoft.Azure.Functions.Worker.Extensions.OpenApi**: OpenAPI documentation
+- **Microsoft.Azure.Functions.Worker.Sdk**: Build-time SDK
 
 ## Best Practices Implemented
 
