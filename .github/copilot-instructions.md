@@ -284,6 +284,7 @@ When suggesting code or answering questions, reference these documents:
 
 **Example - Input Sanitization**:
 ```csharp
+// Basic example - for production, use established libraries
 private string SanitizeInput(string input)
 {
     if (string.IsNullOrWhiteSpace(input))
@@ -291,9 +292,26 @@ private string SanitizeInput(string input)
         return string.Empty;
     }
     
-    // Remove potentially dangerous characters
-    return input.Trim().Replace("<", "").Replace(">", "");
+    // For HTML context, use proper encoding
+    // System.Net.WebUtility.HtmlEncode(input) or
+    // System.Web.HttpUtility.HtmlEncode(input)
+    
+    // For queries, use parameterized queries or QueryExpression
+    // Never concatenate user input directly into FetchXML or queries
+    return input.Trim();
 }
+
+// Better: Use QueryExpression with proper conditions
+var query = new QueryExpression("account")
+{
+    Criteria = new FilterExpression
+    {
+        Conditions =
+        {
+            new ConditionExpression("name", ConditionOperator.Equal, userInput) // Safe
+        }
+    }
+};
 ```
 
 ---
