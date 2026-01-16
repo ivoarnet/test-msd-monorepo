@@ -4,12 +4,12 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'pcf/**'
+      - 'src/pcf/**'
       - '.github/workflows/pcf-ci.yml'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'pcf/**'
+      - 'src/pcf/**'
       - '.github/workflows/pcf-ci.yml'
 
 env:
@@ -29,33 +29,33 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: 'pcf/package-lock.json'
+          cache-dependency-path: 'src/pcf/package-lock.json'
 
       - name: Install dependencies
         run: |
-          cd pcf
+          cd src/pcf
           npm ci
 
       - name: Lint
         run: |
-          cd pcf
+          cd src/pcf
           npm run lint || echo "Linting not configured"
 
       - name: Build PCF components
         run: |
-          cd pcf
+          cd src/pcf
           npm run build
 
       - name: Run tests
         run: |
-          cd pcf
+          cd src/pcf
           npm test || echo "Tests not configured"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: pcf-components
-          path: pcf/components/*/out/**
+          path: src/pcf/components/*/out/**
           retention-days: 30
 
   package:
@@ -79,14 +79,14 @@ jobs:
 
       - name: Build PCF components
         run: |
-          cd pcf
+          cd src/pcf
           npm ci
           npm run build
 
       - name: Create solution package
         run: |
           mkdir -p artifacts
-          cd pcf
+          cd src/pcf
           # Pack each component into a solution
           # This is a simplified example - actual packaging may vary
           for component in components/*/; do

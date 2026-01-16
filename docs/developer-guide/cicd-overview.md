@@ -21,11 +21,11 @@ This document describes the Continuous Integration and Continuous Deployment (CI
 Each component has its own CI/CD pipeline triggered by file path changes:
 
 ```
-plugins/** changes       → plugins-ci.yml
-pcf/** changes           → pcf-ci.yml
-client-scripts/** changes → client-scripts-ci.yml
-functions/** changes     → functions-ci.yml
-terraform/** changes     → terraform-plan.yml
+src/plugins/** changes       → plugins-ci.yml
+src/pcf/** changes           → pcf-ci.yml
+src/client-scripts/** changes → client-scripts-ci.yml
+src/functions/** changes     → functions-ci.yml
+infra/terraform/** changes   → terraform-plan.yml
 ```
 
 ### Common Pipeline Stages
@@ -46,7 +46,7 @@ All pipelines follow a consistent structure:
 ### 1. Plugins CI/CD (`plugins-ci.yml`)
 
 **Triggers**: 
-- Changes to `plugins/**`
+- Changes to `src/plugins/**`
 - Changes to `.github/workflows/plugins-ci.yml`
 
 **Steps**:
@@ -70,7 +70,7 @@ All pipelines follow a consistent structure:
 ### 2. PCF CI/CD (`pcf-ci.yml`)
 
 **Triggers**: 
-- Changes to `pcf/**`
+- Changes to `src/pcf/**`
 - Changes to `.github/workflows/pcf-ci.yml`
 
 **Steps**:
@@ -93,7 +93,7 @@ All pipelines follow a consistent structure:
 ### 3. Client Scripts CI/CD (`client-scripts-ci.yml`)
 
 **Triggers**: 
-- Changes to `client-scripts/**`
+- Changes to `src/client-scripts/**`
 - Changes to `.github/workflows/client-scripts-ci.yml`
 
 **Steps**:
@@ -117,7 +117,7 @@ All pipelines follow a consistent structure:
 ### 4. Azure Functions CI/CD (`functions-ci.yml`)
 
 **Triggers**: 
-- Changes to `functions/**`
+- Changes to `src/functions/**`
 - Changes to `.github/workflows/functions-ci.yml`
 
 **Steps**:
@@ -147,7 +147,7 @@ All pipelines follow a consistent structure:
 ### 5. Terraform CI/CD (`terraform-plan.yml`)
 
 **Triggers**: 
-- Changes to `terraform/**`
+- Changes to `infra/terraform/**`
 - Changes to `.github/workflows/terraform-plan.yml`
 
 **Steps**:

@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'terraform/**'
+      - 'infra/terraform/**'
       - '.github/workflows/terraform-plan.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'terraform/**'
+      - 'infra/terraform/**'
       - '.github/workflows/terraform-plan.yml'
 
 env:
   TERRAFORM_VERSION: '1.5.0'
-  TF_WORKING_DIR: 'terraform/environments/dev'
+  TF_WORKING_DIR: 'infra/terraform/environments/dev'
 
 jobs:
   terraform-plan:
