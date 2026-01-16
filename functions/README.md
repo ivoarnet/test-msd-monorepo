@@ -2,6 +2,10 @@
 
 Integration APIs and background processing for Dynamics 365.
 
+> **✨ NEW: OpenAPI Documentation Available!**  
+> The IntegrationApi project now includes automated OpenAPI documentation using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.  
+> See [src/IntegrationApi/docs/OPENAPI.md](src/IntegrationApi/docs/OPENAPI.md) for details on the RESTful API implementation.
+
 ---
 
 ## 📋 Overview
@@ -19,22 +23,25 @@ Azure Functions provide:
 ```
 functions/
 ├── src/
-│   ├── IntegrationApi/            # HTTP-triggered functions
+│   ├── IntegrationApi/            # HTTP-triggered RESTful API functions
 │   │   ├── Functions/
-│   │   │   ├── GetCustomerFunction.cs
-│   │   │   └── SyncOrderFunction.cs
-│   │   ├── Services/
-│   │   │   ├── DataverseService.cs
-│   │   │   └── ThirdPartyApiClient.cs
+│   │   │   └── AccountFunctions.cs    # CRUD operations for accounts
 │   │   ├── Models/
+│   │   │   ├── AccountDto.cs          # Account resource representation
+│   │   │   ├── CreateAccountRequest.cs # Create request model
+│   │   │   ├── UpdateAccountRequest.cs # Update request model
+│   │   │   └── ErrorResponse.cs        # Standard error response
+│   │   ├── docs/
+│   │   │   └── OPENAPI.md             # OpenAPI documentation guide
 │   │   ├── host.json
+│   │   ├── local.settings.json
+│   │   ├── Program.cs
 │   │   └── IntegrationApi.csproj
-│   └── shared/                    # Code shared across function apps
+│   └── shared/                    # Code shared across function apps (future)
 │       ├── Models/
 │       └── Utilities/
 ├── tests/
-│   └── IntegrationApi.Tests/
-├── local.settings.json.example
+│   └── IntegrationApi.Tests/     # Unit tests (future)
 └── README.md
 ```
 
@@ -72,6 +79,22 @@ func start
 ```
 
 Functions will be available at `http://localhost:7071/api/{functionName}`
+
+### Accessing OpenAPI Documentation
+
+Once the IntegrationApi is running, you can access the automated API documentation:
+
+- **Swagger UI**: `http://localhost:7071/api/swagger/ui`
+- **OpenAPI JSON**: `http://localhost:7071/api/openapi/v3.json`
+- **OpenAPI YAML**: `http://localhost:7071/api/openapi/v3.yaml`
+
+The OpenAPI documentation provides:
+- Interactive API testing
+- Complete request/response schemas
+- Authentication requirements
+- Example values for all models
+
+See [IntegrationApi OpenAPI Guide](src/IntegrationApi/docs/OPENAPI.md) for more details.
 
 ---
 
