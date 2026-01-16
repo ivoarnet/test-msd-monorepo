@@ -402,11 +402,131 @@ npm run build
 ❌ **Don't**:
 - Use `alert()` (use `Xrm.Navigation.openAlertDialog()`)
 - Access `window.parent.Xrm` directly
-- Make synchronous AJAX calls
+- Use `Xrm.Page` (deprecated - use formContext)
+- Make synchronous AJAX calls (use async/await)
 - Store sensitive data in client-side code
 - Modify DOM directly (use Xrm API)
 - Use global variables
 - Ignore TypeScript errors
+
+---
+
+## ⚠️ Deprecated Patterns
+
+### 1. Xrm.Page (Deprecated)
+
+**Old Pattern (Deprecated)**:
+```typescript
+// ❌ Deprecated: Direct Xrm.Page access
+function onLoad() {
+    var name = Xrm.Page.getAttribute("name");
+    name.setValue("New Value");
+}
+```
+
+**Modern Pattern (Recommended)**:
+```typescript
+// ✅ Modern: Get formContext from executionContext
+export function onLoad(executionContext: Xrm.Events.EventContext): void {
+    const formContext = executionContext.getFormContext();
+    const name = formContext.getAttribute("name");
+    name?.setValue("New Value");
+}
+```
+
+### 2. window.parent.Xrm (Deprecated)
+
+**Old Pattern (Deprecated)**:
+```typescript
+// ❌ Deprecated: Accessing parent window
+var xrm = window.parent.Xrm;
+xrm.Page.getAttribute("name");
+```
+
+**Modern Pattern (Recommended)**:
+```typescript
+// ✅ Modern: Use executionContext passed to event handlers
+export function onLoad(executionContext: Xrm.Events.EventContext): void {
+    const formContext = executionContext.getFormContext();
+    const name = formContext.getAttribute("name");
+}
+```
+
+### 3. Synchronous XMLHttpRequest (Deprecated)
+
+**Old Pattern (Deprecated)**:
+```typescript
+// ❌ Deprecated: Synchronous AJAX
+var xhr = new XMLHttpRequest();
+xhr.open("GET", url, false); // false = synchronous
+xhr.send();
+var result = xhr.responseText;
+```
+
+**Modern Pattern (Recommended)**:
+```typescript
+// ✅ Modern: Use async/await with Xrm.WebApi
+async function getData(entityId: string): Promise<any> {
+    try {
+        const result = await Xrm.WebApi.retrieveRecord("account", entityId, "?$select=name");
+        return result;
+    } catch (error) {
+        console.error("Error retrieving data:", error);
+        throw error;
+    }
+}
+```
+
+### 4. alert() / confirm() / prompt() (Deprecated)
+
+**Old Pattern (Deprecated)**:
+```typescript
+// ❌ Deprecated: Browser alert dialogs
+alert("Record saved successfully!");
+var result = confirm("Are you sure?");
+```
+
+**Modern Pattern (Recommended)**:
+```typescript
+// ✅ Modern: Use Xrm.Navigation dialogs
+await Xrm.Navigation.openAlertDialog({ 
+    text: "Record saved successfully!" 
+});
+
+const confirmResult = await Xrm.Navigation.openConfirmDialog({ 
+    text: "Are you sure?",
+    title: "Confirm Action"
+});
+
+if (confirmResult.confirmed) {
+    // User clicked OK
+}
+```
+
+### 5. Direct DOM Manipulation (Deprecated)
+
+**Old Pattern (Deprecated)**:
+```typescript
+// ❌ Deprecated: Direct DOM manipulation
+document.getElementById("name").style.display = "none";
+```
+
+**Modern Pattern (Recommended)**:
+```typescript
+// ✅ Modern: Use Xrm API
+export function hideField(formContext: Xrm.FormContext): void {
+    const control = formContext.getControl("name");
+    control?.setVisible(false);
+}
+```
+
+### Benefits of Modern Patterns
+
+1. **Cross-browser compatibility**: Xrm API works consistently across browsers
+2. **Future-proof**: Microsoft maintains the Xrm API for backward compatibility
+3. **Better error handling**: Modern APIs provide better error information
+4. **Type safety**: TypeScript definitions available for Xrm API
+5. **Unified experience**: Consistent with Power Platform development patterns
 
 ---
 
@@ -415,6 +535,7 @@ npm run build
 - [Client API Reference](https://learn.microsoft.com/en-us/power-apps/developer/model-driven-apps/clientapi/reference)
 - [TypeScript Standards](/docs/standards/typescript-coding-standards.md)
 - [Xrm TypeScript Definitions](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/xrm)
+- [Deprecated Client API](https://learn.microsoft.com/en-us/power-apps/developer/model-driven-apps/clientapi/client-api-deprecated)
 
 ---
 

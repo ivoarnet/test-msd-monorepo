@@ -466,10 +466,86 @@ describe('Account Form Tests', () => {
 - [ ] JSDoc comments on public functions
 - [ ] No `any` types (use specific types or `unknown`)
 - [ ] No `console.log` in production code (use proper logging)
-- [ ] Xrm API accessed via executionContext
+- [ ] Xrm API accessed via executionContext (not `Xrm.Page` or `window.parent.Xrm`)
+- [ ] No deprecated patterns (see Deprecated Patterns section below)
 - [ ] ESLint passes with no warnings
 - [ ] Prettier formatting applied
 - [ ] Unit tests added/updated
+
+---
+
+## ⚠️ Deprecated Patterns
+
+### Xrm.Page is Deprecated
+
+Microsoft deprecated `Xrm.Page` in Dynamics 365 v9.0. Always use `formContext` from `executionContext`.
+
+```typescript
+// ❌ Deprecated
+function onLoad() {
+    var name = Xrm.Page.getAttribute("name");
+    Xrm.Page.ui.setFormNotification("Message", "INFO", "1");
+}
+
+// ✅ Modern
+export function onLoad(executionContext: Xrm.Events.EventContext): void {
+    const formContext = executionContext.getFormContext();
+    const name = formContext.getAttribute("name");
+    formContext.ui.setFormNotification("Message", "INFO", "1");
+}
+```
+
+### window.parent.Xrm is Not Recommended
+
+Accessing the parent window's Xrm object can cause issues and is not future-proof.
+
+```typescript
+// ❌ Not recommended
+var xrm = window.parent.Xrm;
+
+// ✅ Modern - use executionContext
+export function onLoad(executionContext: Xrm.Events.EventContext): void {
+    const formContext = executionContext.getFormContext();
+    // Use formContext methods
+}
+```
+
+### Synchronous XMLHttpRequest is Deprecated
+
+Browsers are deprecating synchronous XHR. Use async/await with Xrm.WebApi.
+
+```typescript
+// ❌ Deprecated
+var xhr = new XMLHttpRequest();
+xhr.open("GET", url, false); // Synchronous
+xhr.send();
+
+// ✅ Modern
+async function getData(): Promise<any> {
+    const result = await Xrm.WebApi.retrieveRecord("account", id, "?$select=name");
+    return result;
+}
+```
+
+### alert(), confirm(), prompt() Should Not Be Used
+
+Use Xrm.Navigation dialogs for consistency with Dynamics 365 UI.
+
+```typescript
+// ❌ Deprecated
+alert("Success!");
+if (confirm("Continue?")) { }
+
+// ✅ Modern
+await Xrm.Navigation.openAlertDialog({ text: "Success!" });
+const result = await Xrm.Navigation.openConfirmDialog({ text: "Continue?" });
+if (result.confirmed) { }
+```
+
+### Key Resources on Deprecated APIs
+
+- [Deprecated Client API](https://learn.microsoft.com/en-us/power-apps/developer/model-driven-apps/clientapi/client-api-deprecated)
+- [Best Practices: Client Scripting](https://learn.microsoft.com/en-us/power-apps/developer/model-driven-apps/best-practices/business-logic/interact-http-https-resources-asynchronously)
 
 ---
 
@@ -511,6 +587,7 @@ describe('Account Form Tests', () => {
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
 - [Xrm TypeScript Definitions](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/xrm)
 - [Client API Reference](https://learn.microsoft.com/en-us/power-apps/developer/model-driven-apps/clientapi/reference)
+- [Deprecated Client API](https://learn.microsoft.com/en-us/power-apps/developer/model-driven-apps/clientapi/client-api-deprecated)
 
 ---
 
