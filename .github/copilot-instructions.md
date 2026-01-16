@@ -129,8 +129,7 @@ export class DataGrid implements ComponentFramework.StandardControl<IInputs, IOu
 
 ### Terraform
 
-**Location**: `/infra/terraform/`  
-**Standards**: [docs/standards/terraform-best-practices.md](/docs/standards/terraform-best-practices.md) (if exists)
+**Location**: `/infra/terraform/`
 
 **Key Guidelines**:
 - Use modules for reusable infrastructure components
@@ -269,7 +268,6 @@ When suggesting code or answering questions, reference these documents:
 - **Architecture Decisions**: `/docs/architecture/ADR-*.md`
 - **.NET Standards**: `/docs/standards/dotnet-coding-standards.md`
 - **TypeScript Standards**: `/docs/standards/typescript-coding-standards.md`
-- **Plugin Patterns**: `/docs/standards/plugin-patterns.md` (if exists)
 - **Component READMEs**: Each component has a README with specific guidance
 
 ---
