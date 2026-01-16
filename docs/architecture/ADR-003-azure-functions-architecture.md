@@ -1,7 +1,7 @@
 # ADR-003: Azure Functions Architecture for Dynamics 365 / Dataverse
 
 **Status**: Open  
-**Date**: 2026-01-16  
+**Date**: 2024-01-16  
 **Related**: ADR-001 (Repository Strategy), ADR-002 (Folder Structure)
 
 ---
@@ -326,9 +326,13 @@ namespace PriceCalculatorFunctions.Functions
         {
             // Thin orchestration: validate, map, call core, return
             var request = await req.ReadFromJsonAsync<PriceRequestDto>();
-            var result = await _calculator.CalculatePriceAsync(MapToDomain(request));
+            var domainRequest = MapToDomain(request);
+            var result = await _calculator.CalculatePriceAsync(domainRequest);
             return new OkObjectResult(MapToDto(result));
         }
+        
+        private PriceRequest MapToDomain(PriceRequestDto dto) { /* mapping logic */ }
+        private PriceResultDto MapToDto(CalculationResult result) { /* mapping logic */ }
     }
 }
 
@@ -337,6 +341,13 @@ namespace IntegrationApi.Functions
 {
     public class AccountFunctions
     {
+        private readonly DataverseService _dataverseService;
+        
+        public AccountFunctions(DataverseService dataverseService)
+        {
+            _dataverseService = dataverseService;
+        }
+        
         [Function("GetAccount")]
         public async Task<IActionResult> GetAccount(
             [HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequest req,
@@ -444,7 +455,6 @@ Both approaches support Microsoft's recommendations:
 - Use managed identities
 
 **References:**
-- [Azure Functions architectural best practices](https://learn.microsoft.com/en-us/azure/azure-functions/functions-best-practices)
 - [Organizing Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference)
 
 ---
@@ -499,11 +509,17 @@ Both approaches support Microsoft's recommendations:
 
 ## References
 
+### Architecture Patterns
 - [Clean Architecture (Robert C. Martin)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
+- [Vertical Slice Architecture](https://www.jimmybogard.com/vertical-slice-architecture/)
+
+### Azure Functions
 - [Azure Functions Clean Architecture](https://learn.microsoft.com/en-us/azure/architecture/serverless/code)
 - [Azure Functions Best Practices](https://learn.microsoft.com/en-us/azure/azure-functions/functions-best-practices)
-- [Vertical Slice Architecture](https://www.jimmybogard.com/vertical-slice-architecture/)
+- [Organizing Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference)
+
+### Related ADRs
 - ADR-001: Repository Strategy for Dynamics 365 Development
 - ADR-002: Monorepo Folder Structure
 
