@@ -59,7 +59,7 @@ cd test-msd-monorepo
 
 #### Plugins (.NET)
 ```bash
-cd plugins
+cd src/plugins
 dotnet restore
 dotnet build
 cd ..
@@ -67,7 +67,7 @@ cd ..
 
 #### PCF Components
 ```bash
-cd pcf
+cd src/pcf
 npm install
 npm run build
 cd ..
@@ -75,7 +75,7 @@ cd ..
 
 #### Client Scripts
 ```bash
-cd client-scripts
+cd src/client-scripts
 npm install
 npm run build
 cd ..
@@ -83,7 +83,7 @@ cd ..
 
 #### Azure Functions
 ```bash
-cd functions
+cd src/functions
 dotnet restore
 dotnet build
 cd ..
@@ -110,7 +110,7 @@ Create a `appsettings.Development.json` file (gitignored) in plugin projects:
 Copy `local.settings.json.example` to `local.settings.json`:
 
 ```bash
-cd functions
+cd src/functions
 cp local.settings.json.example local.settings.json
 # Edit local.settings.json with your values
 ```
@@ -125,7 +125,7 @@ Plugins run in Dataverse and cannot be executed locally outside of unit tests.
 
 **Run unit tests**:
 ```bash
-cd plugins
+cd src/plugins
 dotnet test
 ```
 
@@ -138,7 +138,7 @@ dotnet test
 
 **Development mode** (hot reload):
 ```bash
-cd pcf/components/YourComponent
+cd src/pcf/components/YourComponent
 npm start watch
 ```
 
@@ -153,7 +153,7 @@ pac pcf push --publisher-prefix contoso
 
 **Build and watch**:
 ```bash
-cd client-scripts
+cd src/client-scripts
 npm run watch
 ```
 
@@ -168,7 +168,7 @@ npm test
 
 **Run locally**:
 ```bash
-cd functions/src/YourFunctionApp
+cd src/functions/src/YourFunctionApp
 func start
 ```
 
@@ -187,12 +187,12 @@ curl -X POST http://localhost:7071/api/YourFunction -H "Content-Type: applicatio
 Run from repository root:
 ```bash
 # .NET tests
-cd plugins && dotnet test && cd ..
-cd functions && dotnet test && cd ..
+cd src/plugins && dotnet test && cd ..
+cd src/functions && dotnet test && cd ..
 
 # JavaScript/TypeScript tests
-cd client-scripts && npm test && cd ..
-cd pcf && npm test && cd ..
+cd src/client-scripts && npm test && cd ..
+cd src/pcf && npm test && cd ..
 ```
 
 ### Watch Mode (TDD)

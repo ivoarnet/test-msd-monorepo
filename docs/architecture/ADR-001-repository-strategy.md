@@ -112,12 +112,15 @@ Migrate to multi-repo if:
 
 ### 1. **Logical Separation by Technology**
 ```
-/plugins       - .NET Dataverse plugins
-/pcf           - PowerApps Component Framework
-/functions     - Azure Functions
-/client-scripts - JavaScript/TypeScript for forms
-/solutions     - Dataverse solution exports
-/terraform     - Infrastructure as Code
+/docs           - Documentation, ADRs, and standards
+/infra          - Infrastructure as Code
+  /terraform    - Terraform modules and configurations
+/src            - Source code
+  /plugins      - .NET Dataverse plugins
+  /pcf          - PowerApps Component Framework
+  /functions    - Azure Functions
+  /client-scripts - JavaScript/TypeScript for forms
+  /solutions    - Dataverse solution exports
 ```
 
 ### 2. **Workspaces for Scaling**
@@ -129,7 +132,7 @@ GitHub Actions triggers based on file paths:
 on:
   push:
     paths:
-      - 'plugins/**'
+      - 'src/plugins/**'
       - '.github/workflows/plugins-ci.yml'
 ```
 
@@ -175,9 +178,9 @@ Introduce module boundaries via folders and namespace conventions
 ### Code Ownership (CODEOWNERS)
 Even in a monorepo, use GitHub CODEOWNERS for approval requirements:
 ```
-/plugins/           @team-platform
-/pcf/               @team-frontend
-/terraform/         @team-devops
+/src/plugins/       @team-platform
+/src/pcf/           @team-frontend
+/infra/terraform/   @team-devops
 ```
 
 ### Branch Strategy
@@ -188,7 +191,7 @@ Even in a monorepo, use GitHub CODEOWNERS for approval requirements:
 
 ### Release Strategy
 - **Monorepo tags**: `v1.2.3` for coordinated releases
-- **Component tags**: `plugins/v1.0.0` if needed independently
+- **Component tags**: `src/plugins/v1.0.0` if needed independently
 
 ---
 
