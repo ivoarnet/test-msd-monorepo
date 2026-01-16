@@ -26,7 +26,8 @@ This monorepo contains all components for our Dynamics 365 / Dataverse solution:
 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| **[Plugins](/plugins)** | .NET 8+ | Server-side business logic (plugins, custom APIs) |
+| **[Plugins](/plugins)** | .NET 8+ | Server-side business logic triggered by data events |
+| **[Custom APIs](/plugins/custom-apis)** | .NET 8+ | Reusable operations exposed via Dataverse API |
 | **[PCF](/pcf)** | TypeScript, React | Custom UI controls (PowerApps Component Framework) |
 | **[Client Scripts](/client-scripts)** | TypeScript | Form and ribbon customizations |
 | **[Azure Functions](/functions)** | .NET/Node.js | Integration APIs and background processing |
@@ -40,7 +41,8 @@ This monorepo contains all components for our Dynamics 365 / Dataverse solution:
 ```
 /
 ├── .github/              # GitHub Actions workflows and templates
-├── plugins/              # .NET Dataverse plugins and custom APIs
+├── plugins/              # .NET Dataverse plugins
+│   └── custom-apis/      # Custom API implementations
 ├── pcf/                  # PowerApps Component Framework controls
 ├── client-scripts/       # JavaScript/TypeScript for forms and ribbons
 ├── functions/            # Azure Functions for integrations
@@ -127,10 +129,22 @@ cd functions && dotnet test && cd ..
 **.NET server-side logic for Dataverse**
 
 - Business logic triggered by Dataverse events (Create, Update, Delete)
-- Custom APIs for specialized operations
+- Runs automatically in the data pipeline
 - [Learn more →](/plugins/README.md)
 
 **Key Technologies**: .NET 8+, Microsoft.CrmSdk.CoreAssemblies, IPlugin
+
+---
+
+### [Custom APIs](/plugins/custom-apis)
+**Reusable operations exposed via Dataverse API**
+
+- Define custom operations that can be called from anywhere
+- Strongly-typed inputs and outputs
+- Callable from JavaScript, plugins, Power Automate, external apps
+- [Learn more →](/plugins/custom-apis/README.md)
+
+**Key Technologies**: .NET 8+, Dataverse Custom API framework, IPlugin
 
 ---
 
@@ -264,6 +278,7 @@ See [CI/CD Documentation](/docs/developer-guide/cicd-overview.md) for details.
 ### Developer Guides
 - [Getting Started](/docs/developer-guide/getting-started.md) - Onboarding for new developers
 - [Local Development Setup](/docs/developer-guide/local-development.md) - Environment configuration
+- [Custom API Development](/docs/developer-guide/custom-api-development.md) - Creating Custom APIs
 - [CI/CD Overview](/docs/developer-guide/cicd-overview.md) - Pipeline documentation
 - [Debugging Guide](/docs/developer-guide/debugging.md) - Troubleshooting tips
 
@@ -275,6 +290,7 @@ See [CI/CD Documentation](/docs/developer-guide/cicd-overview.md) for details.
 
 ### Component-Specific Docs
 - [Plugins README](/plugins/README.md)
+- [Custom APIs README](/plugins/custom-apis/README.md)
 - [PCF README](/pcf/README.md)
 - [Client Scripts README](/client-scripts/README.md)
 - [Azure Functions README](/functions/README.md)

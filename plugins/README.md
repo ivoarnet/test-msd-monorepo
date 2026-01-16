@@ -6,10 +6,19 @@
 
 ## 📋 Overview
 
-This folder contains:
-- **Plugins**: Event-driven business logic (Create, Update, Delete, etc.)
-- **Custom APIs**: Custom operations exposed via Dataverse API
-- **Shared utilities**: Common code reused across plugins
+This folder contains **Plugins** - event-driven business logic that runs automatically when data changes in Dataverse.
+
+> **Note**: For creating **Custom APIs** (reusable operations exposed via API), see [/plugins/custom-apis/README.md](/plugins/custom-apis/README.md)
+
+### Plugins vs Custom APIs
+
+| Aspect | Plugins | Custom APIs |
+|--------|---------|-------------|
+| **Trigger** | Automatic (on data events) | Explicit call |
+| **Use Case** | Data validation, automation | Reusable operations |
+| **Invocation** | Dataverse pipeline | API call from anywhere |
+| **Examples** | Validate fields, cascade updates | Calculate commission, generate report |
+| **Documentation** | This README | [Custom APIs README](/plugins/custom-apis/README.md) |
 
 ---
 
