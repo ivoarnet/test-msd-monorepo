@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Contoso.CustomApis.snk</AssemblyOriginatorKeyFile>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>Contoso Custom APIs</AssemblyTitle>
+    <AssemblyDescription>Custom API implementations for Dataverse</AssemblyDescription>
+    <Company>Contoso Ltd.</Company>
+    <Product>Contoso.CustomApis</Product>
+    <Copyright>Copyright © 2024</Copyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.56" />
+  </ItemGroup>
+
+</Project>
