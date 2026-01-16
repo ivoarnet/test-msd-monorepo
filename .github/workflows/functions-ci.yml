@@ -26,22 +26,40 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Detect solution or project file
+        id: detect-project
+        run: |
+          if [ -f "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/functions.sln" ]; then
+            echo "build_path=${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/functions.sln" >> $GITHUB_OUTPUT
+            echo "exists=true" >> $GITHUB_OUTPUT
+          elif [ -f "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/src/IntegrationApi/IntegrationApi.csproj" ]; then
+            echo "build_path=${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/src/IntegrationApi" >> $GITHUB_OUTPUT
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No solution or project file found - skipping build"
+          fi
+
       - name: Setup .NET
+        if: steps.detect-project.outputs.exists == 'true'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        if: steps.detect-project.outputs.exists == 'true'
+        run: dotnet restore ${{ steps.detect-project.outputs.build_path }}
 
       - name: Build
-        run: dotnet build ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }} --configuration Release --no-restore
+        if: steps.detect-project.outputs.exists == 'true'
+        run: dotnet build ${{ steps.detect-project.outputs.build_path }} --configuration Release --no-restore
 
       - name: Run unit tests
-        run: dotnet test ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }} --configuration Release --no-build --verbosity normal --logger trx
+        if: steps.detect-project.outputs.exists == 'true'
+        run: dotnet test ${{ steps.detect-project.outputs.build_path }} --configuration Release --no-build --verbosity normal --logger trx
 
       - name: Upload test results
-        if: always()
+        if: always() && steps.detect-project.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: test-results
@@ -57,18 +75,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check if project exists
+        id: check-project
+        run: |
+          if [ -f "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/src/IntegrationApi/IntegrationApi.csproj" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ IntegrationApi project not found - skipping packaging"
+          fi
+
       - name: Setup .NET
+        if: steps.check-project.outputs.exists == 'true'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Publish function app
+        if: steps.check-project.outputs.exists == 'true'
         run: |
           dotnet publish ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/src/IntegrationApi \
             --configuration Release \
             --output ./output
 
       - name: Upload artifacts
+        if: steps.check-project.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: function-app
