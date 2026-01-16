@@ -38,7 +38,7 @@ plugins/
 
 ### Prerequisites
 
-- .NET SDK 6.0 or higher
+- .NET SDK 8.0 or higher
 - Visual Studio 2022 (recommended) or VS Code
 - Dataverse environment for testing
 

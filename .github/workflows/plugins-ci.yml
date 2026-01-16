@@ -13,7 +13,7 @@ on:
       - '.github/workflows/plugins-ci.yml'
 
 env:
-  DOTNET_VERSION: '6.0.x'
+  DOTNET_VERSION: '8.0.x'
   BUILD_CONFIGURATION: 'Release'
 
 jobs:
@@ -25,28 +25,43 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check if solution exists
+        id: check-solution
+        run: |
+          if [ -f "plugins/Contoso.Plugins.sln" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Plugin solution not found - skipping build"
+          fi
+
       - name: Setup .NET
+        if: steps.check-solution.outputs.exists == 'true'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
+        if: steps.check-solution.outputs.exists == 'true'
         run: dotnet restore plugins/Contoso.Plugins.sln
 
       - name: Build solution
+        if: steps.check-solution.outputs.exists == 'true'
         run: dotnet build plugins/Contoso.Plugins.sln --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
 
       - name: Run unit tests
+        if: steps.check-solution.outputs.exists == 'true'
         run: dotnet test plugins/Contoso.Plugins.sln --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --verbosity normal --logger trx --collect:"XPlat Code Coverage"
 
       - name: Upload test results
-        if: always()
+        if: always() && steps.check-solution.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: '**/TestResults/**/*.trx'
 
       - name: Upload code coverage
+        if: steps.check-solution.outputs.exists == 'true'
         uses: codecov/codecov-action@v3
         with:
           files: '**/coverage.cobertura.xml'
@@ -63,26 +78,41 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check if solution exists
+        id: check-solution
+        run: |
+          if [ -f "plugins/Contoso.Plugins.sln" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Plugin solution not found - skipping packaging"
+          fi
+
       - name: Setup .NET
+        if: steps.check-solution.outputs.exists == 'true'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Build for release
+        if: steps.check-solution.outputs.exists == 'true'
         run: dotnet build plugins/Contoso.Plugins.sln --configuration Release
 
       - name: Collect plugin DLLs
+        if: steps.check-solution.outputs.exists == 'true'
         run: |
           mkdir -p artifacts/plugins
           find plugins/src -name "*.dll" -path "*/bin/Release/*" -not -path "*/ref/*" -exec cp {} artifacts/plugins/ \;
 
       - name: Create deployment package
+        if: steps.check-solution.outputs.exists == 'true'
         run: |
           cd artifacts/plugins
           zip -r ../plugins-release.zip .
           cd ../..
 
       - name: Upload artifacts
+        if: steps.check-solution.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: plugins-release

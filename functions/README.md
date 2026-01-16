@@ -51,7 +51,7 @@ functions/
 
 ### Prerequisites
 
-- .NET SDK 6.0+
+- .NET SDK 8.0+
 - Azure Functions Core Tools v4
 - Azure CLI
 - Azure subscription (for deployment)

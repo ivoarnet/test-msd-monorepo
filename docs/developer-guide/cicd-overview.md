@@ -50,7 +50,7 @@ All pipelines follow a consistent structure:
 - Changes to `.github/workflows/plugins-ci.yml`
 
 **Steps**:
-1. Setup .NET 6.0+
+1. Setup .NET 8.0+
 2. Restore NuGet packages
 3. Build solution
 4. Run unit tests (with coverage)
@@ -121,7 +121,7 @@ All pipelines follow a consistent structure:
 - Changes to `.github/workflows/functions-ci.yml`
 
 **Steps**:
-1. Setup .NET 6.0+
+1. Setup .NET 8.0+
 2. Restore dependencies
 3. Build function apps
 4. Run unit tests
@@ -288,7 +288,7 @@ jobs:
     uses: ./.github/workflows/_reusable-build.yml
     with:
       component: plugins
-      dotnet-version: '6.0.x'
+      dotnet-version: '8.0.x'
 ```
 
 ---
