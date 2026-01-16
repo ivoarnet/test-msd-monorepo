@@ -267,17 +267,19 @@ See [CI/CD Documentation](/docs/developer-guide/cicd-overview.md) for details.
 - [Local Development Setup](/docs/developer-guide/local-development.md) - Environment configuration
 - [CI/CD Overview](/docs/developer-guide/cicd-overview.md) - Pipeline documentation
 - [Debugging Guide](/docs/developer-guide/debugging.md) - Troubleshooting tips
+- [🔄 Migration Guide: Deprecated Patterns](/docs/developer-guide/deprecated-patterns-migration.md) - **NEW**: Update legacy code to modern patterns
+- [⚠️ Deprecated Patterns Summary](/docs/developer-guide/DEPRECATED-PATTERNS-SUMMARY.md) - **NEW**: Quick reference for deprecated patterns
 
 ### Coding Standards
-- [.NET Coding Standards](/docs/standards/dotnet-coding-standards.md)
-- [TypeScript Coding Standards](/docs/standards/typescript-coding-standards.md)
+- [.NET Coding Standards](/docs/standards/dotnet-coding-standards.md) - **Updated**: Modern LocalPluginContext pattern
+- [TypeScript Coding Standards](/docs/standards/typescript-coding-standards.md) - **Updated**: Deprecated pattern warnings
 - [Terraform Best Practices](/docs/standards/terraform-best-practices.md)
 - [Plugin Development Patterns](/docs/standards/plugin-patterns.md)
 
 ### Component-Specific Docs
-- [Plugins README](/src/plugins/README.md)
+- [Plugins README](/src/plugins/README.md) - **Updated**: Modern plugin examples
 - [PCF README](/src/pcf/README.md)
-- [Client Scripts README](/src/client-scripts/README.md)
+- [Client Scripts README](/src/client-scripts/README.md) - **Updated**: Deprecated pattern warnings
 - [Azure Functions README](/src/functions/README.md)
 - [Terraform README](/infra/terraform/README.md)
 
