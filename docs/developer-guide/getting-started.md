@@ -246,10 +246,10 @@ git checkout -b feature/my-first-feature
 
 ### Step 3: Make Changes
 Follow the component-specific guides:
-- [Plugins Development](/plugins/README.md)
-- [PCF Development](/pcf/README.md)
-- [Client Scripts Development](/client-scripts/README.md)
-- [Azure Functions Development](/functions/README.md)
+- [Plugins Development](/src/plugins/README.md)
+- [PCF Development](/src/pcf/README.md)
+- [Client Scripts Development](/src/client-scripts/README.md)
+- [Azure Functions Development](/src/functions/README.md)
 
 ### Step 4: Test Your Changes
 Run relevant tests and ensure they pass.

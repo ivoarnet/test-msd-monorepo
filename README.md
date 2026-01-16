@@ -238,9 +238,9 @@ All CI/CD pipelines are in [`.github/workflows/`](/.github/workflows/):
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | **[plugins-ci.yml](/.github/workflows/plugins-ci.yml)** | Changes to `plugins/**` | Build, test, and package plugins |
-| **[pcf-ci.yml](/.github/workflows/pcf-ci.yml)** | Changes to `pcf/**` | Build and package PCF components |
-| **[client-scripts-ci.yml](/.github/workflows/client-scripts-ci.yml)** | Changes to `client-scripts/**` | Build and bundle client scripts |
-| **[functions-ci.yml](/.github/workflows/functions-ci.yml)** | Changes to `functions/**` | Build, test, and deploy Azure Functions |
+| **[pcf-ci.yml](/.github/workflows/pcf-ci.yml)** | Changes to `src/pcf/**` | Build and package PCF components |
+| **[client-scripts-ci.yml](/.github/workflows/client-scripts-ci.yml)** | Changes to `src/client-scripts/**` | Build and bundle client scripts |
+| **[functions-ci.yml](/.github/workflows/functions-ci.yml)** | Changes to `src/functions/**` | Build, test, and deploy Azure Functions |
 | **[terraform-plan.yml](/.github/workflows/terraform-plan.yml)** | Changes to `terraform/**` | Validate and plan infrastructure changes |
 
 ### Pipeline Stages
@@ -275,11 +275,11 @@ See [CI/CD Documentation](/docs/developer-guide/cicd-overview.md) for details.
 - [Plugin Development Patterns](/docs/standards/plugin-patterns.md)
 
 ### Component-Specific Docs
-- [Plugins README](/plugins/README.md)
-- [PCF README](/pcf/README.md)
-- [Client Scripts README](/client-scripts/README.md)
-- [Azure Functions README](/functions/README.md)
-- [Terraform README](/terraform/README.md)
+- [Plugins README](/src/plugins/README.md)
+- [PCF README](/src/pcf/README.md)
+- [Client Scripts README](/src/client-scripts/README.md)
+- [Azure Functions README](/src/functions/README.md)
+- [Terraform README](/infra/terraform/README.md)
 
 ---
 
