@@ -2,6 +2,7 @@
 
 **Status**: Accepted  
 **Date**: 2024-01-15  
+**Updated**: 2026-01-16  
 **Related**: ADR-001 (Repository Strategy)
 
 ---
@@ -27,45 +28,43 @@ Define a clear, scalable folder structure that:
 │   ├── CODEOWNERS         # Code ownership rules
 │   └── PULL_REQUEST_TEMPLATE.md
 │
-├── plugins/               # .NET Dataverse plugins
-│   ├── src/               # Source code
-│   ├── tests/             # Unit tests
-│   └── README.md
-│
-├── pcf/                   # PowerApps Component Framework
-│   ├── components/        # Individual PCF components
-│   ├── shared/            # Shared utilities
-│   └── README.md
-│
-├── client-scripts/        # Form & ribbon JavaScript/TypeScript
-│   ├── src/               # Source code
-│   ├── tests/             # Jest/Jasmine tests
-│   └── README.md
-│
-├── functions/             # Azure Functions
-│   ├── src/               # Function apps
-│   ├── shared/            # Shared function utilities
-│   ├── tests/             # Integration tests
-│   └── README.md
-│
-├── solutions/             # Dataverse solution exports
-│   ├── managed/           # Managed solutions
-│   ├── unmanaged/         # Source-controlled unmanaged
-│   └── README.md
-│
-├── terraform/             # Infrastructure as Code
-│   ├── environments/      # Environment-specific configs
-│   ├── modules/           # Reusable Terraform modules
-│   └── README.md
-│
 ├── docs/                  # Documentation
 │   ├── architecture/      # ADRs and design docs
 │   ├── developer-guide/   # Onboarding & how-tos
 │   └── standards/         # Coding standards
 │
-├── scripts/               # Helper scripts (build, deploy)
-│   ├── build/
-│   └── deploy/
+├── infra/                 # Infrastructure as Code
+│   └── terraform/         # Terraform modules and configurations
+│       ├── environments/  # Environment-specific configs
+│       ├── modules/       # Reusable Terraform modules
+│       └── README.md
+│
+├── src/                   # Source code
+│   ├── plugins/           # .NET Dataverse plugins
+│   │   ├── src/           # Source code
+│   │   ├── tests/         # Unit tests
+│   │   └── README.md
+│   │
+│   ├── pcf/               # PowerApps Component Framework
+│   │   ├── components/    # Individual PCF components
+│   │   ├── shared/        # Shared utilities
+│   │   └── README.md
+│   │
+│   ├── client-scripts/    # Form & ribbon JavaScript/TypeScript
+│   │   ├── src/           # Source code
+│   │   ├── tests/         # Jest/Jasmine tests
+│   │   └── README.md
+│   │
+│   ├── functions/         # Azure Functions
+│   │   ├── src/           # Function apps
+│   │   ├── shared/        # Shared function utilities
+│   │   ├── tests/         # Integration tests
+│   │   └── README.md
+│   │
+│   └── solutions/         # Dataverse solution exports
+│       ├── managed/       # Managed solutions
+│       ├── unmanaged/     # Source-controlled unmanaged
+│       └── README.md
 │
 ├── .gitignore
 ├── .editorconfig          # Cross-editor settings
@@ -77,19 +76,28 @@ Define a clear, scalable folder structure that:
 
 ## Design Principles
 
-### 1. Technology-Based Top-Level Folders
-Each major technology stack gets a top-level folder:
+### 1. Top-Level Separation by Concern
+The repository is organized at the root level by major concerns:
+- **docs**: Documentation, architecture decisions, and standards
+- **infra**: Infrastructure as Code (Terraform)
+- **src**: All source code components
+
+**Rationale**: Clear separation improves organization, makes CI/CD path filtering clearer, and groups related concerns together
+
+### 2. Technology-Based Folders Under `src/`
+Each major technology stack gets a folder under `src/`:
 - **plugins**: .NET ecosystem
 - **pcf**: Node.js/React ecosystem  
 - **client-scripts**: Browser JavaScript/TypeScript
 - **functions**: Azure Functions (Node.js/.NET)
+- **solutions**: Dataverse solution exports
 
-**Rationale**: Clear separation improves Copilot context and CI/CD path filtering
+**Rationale**: Technology-based organization improves Copilot context and enables path-based CI/CD triggers
 
 ### 2. Consistent Sub-Structure
 Each component folder follows a pattern:
 ```
-<component>/
+src/<component>/
 ├── src/           # Source code
 ├── tests/         # Tests
 ├── docs/          # Component-specific docs (if extensive)
@@ -98,12 +106,12 @@ Each component folder follows a pattern:
 ```
 
 ### 3. Shared Code Placement
-- **Within component**: `<component>/shared/` (e.g., `plugins/src/Shared/`)
+- **Within component**: `src/<component>/shared/` (e.g., `src/plugins/src/Shared/`)
 - **Cross-component**: Consider extracting to separate repo or package later
 
 ### 4. Environment Separation
 Configuration is environment-agnostic in source; environment-specific values live in:
-- **Terraform**: `terraform/environments/{dev,test,prod}/`
+- **Terraform**: `infra/terraform/environments/{dev,test,prod}/`
 - **Azure Functions**: App Settings (not in repo)
 - **Dataverse**: Solution environment variables
 
@@ -113,7 +121,8 @@ Configuration is environment-agnostic in source; environment-specific values liv
 
 | Context | Convention | Example |
 |---------|-----------|---------|
-| **Folders (root)** | lowercase-kebab-case | `client-scripts/` |
+| **Folders (root)** | lowercase-kebab-case | `src/`, `infra/`, `docs/` |
+| **Folders (src)** | lowercase-kebab-case | `client-scripts/`, `pcf/` |
 | **Folders (nested)** | PascalCase or camelCase per language | `src/Helpers/` (.NET), `src/utils/` (JS) |
 | **.NET Projects** | PascalCase with namespace | `Contoso.Plugins.csproj` |
 | **.NET Classes** | PascalCase | `AccountPlugin.cs` |
@@ -127,7 +136,7 @@ Configuration is environment-agnostic in source; environment-specific values liv
 
 ### Plugins Structure
 ```
-plugins/
+src/plugins/
 ├── src/
 │   ├── Contoso.Plugins/           # Main plugin project
 │   │   ├── Account/
@@ -150,7 +159,7 @@ plugins/
 
 ### PCF Structure
 ```
-pcf/
+src/pcf/
 ├── components/
 │   ├── DataGrid/                  # Individual component
 │   │   ├── DataGrid/              # Generated PCF structure
@@ -165,7 +174,7 @@ pcf/
 
 ### Client Scripts Structure
 ```
-client-scripts/
+src/client-scripts/
 ├── src/
 │   ├── forms/
 │   │   ├── account.ts             # Account form logic
@@ -184,7 +193,7 @@ client-scripts/
 
 ### Functions Structure
 ```
-functions/
+src/functions/
 ├── src/
 │   ├── IntegrationApi/            # Function app
 │   │   ├── Functions/
@@ -204,7 +213,7 @@ functions/
 
 ### Terraform Structure
 ```
-terraform/
+infra/terraform/
 ├── environments/
 │   ├── dev/
 │   │   ├── main.tf
@@ -229,22 +238,22 @@ terraform/
 ### CODEOWNERS
 ```
 # Each component has designated owners
-/plugins/           @team-backend
-/pcf/               @team-frontend
-/client-scripts/    @team-frontend
-/functions/         @team-integrations
-/terraform/         @team-devops
-/docs/              @team-leads
+/src/plugins/           @team-backend
+/src/pcf/               @team-frontend
+/src/client-scripts/    @team-frontend
+/src/functions/         @team-integrations
+/infra/terraform/       @team-devops
+/docs/                  @team-leads
 ```
 
 ### Workflow Organization
 ```
 .github/workflows/
-├── plugins-ci.yml           # Triggered by plugins/** changes
-├── pcf-ci.yml               # Triggered by pcf/** changes
-├── functions-ci.yml         # Triggered by functions/** changes
-├── client-scripts-ci.yml    # Triggered by client-scripts/** changes
-├── terraform-plan.yml       # Triggered by terraform/** changes
+├── plugins-ci.yml           # Triggered by src/plugins/** changes
+├── pcf-ci.yml               # Triggered by src/pcf/** changes
+├── functions-ci.yml         # Triggered by src/functions/** changes
+├── client-scripts-ci.yml    # Triggered by src/client-scripts/** changes
+├── terraform-plan.yml       # Triggered by infra/terraform/** changes
 └── _reusable-build.yml      # Shared workflow steps
 ```
 
@@ -264,15 +273,21 @@ terraform/
 
 ### 3. Example Code
 Each component includes `/examples/` or `/templates/`:
-- `plugins/examples/BasicPlugin.cs`
-- `pcf/components/_template/`
-- `client-scripts/examples/formLifecycle.ts`
+- `src/plugins/examples/BasicPlugin.cs`
+- `src/pcf/components/_template/`
+- `src/client-scripts/examples/formLifecycle.ts`
 
 ---
 
 ## Rationale
 
-### Why Flat Top-Level?
+### Why Top-Level Separation (docs/infra/src)?
+- Clear organizational boundaries
+- Groups related concerns together
+- Makes the purpose of each directory immediately clear
+- Follows common monorepo patterns
+
+### Why Technology-Based Folders Under src/?
 - Clear technology boundaries
 - Easy path-based CI/CD
 - Intuitive for new developers

@@ -19,7 +19,7 @@ This folder contains Terraform modules and configurations for:
 ## 🏗️ Structure
 
 ```
-terraform/
+infra/terraform/
 ├── environments/
 │   ├── dev/
 │   │   ├── main.tf               # Main configuration for dev
@@ -79,7 +79,7 @@ az account set --subscription "Your Subscription Name"
 ### 1. Initialize Terraform
 
 ```bash
-cd terraform/environments/dev
+cd infra/terraform/environments/dev
 terraform init
 ```
 

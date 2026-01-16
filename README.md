@@ -26,12 +26,12 @@ This monorepo contains all components for our Dynamics 365 / Dataverse solution:
 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| **[Plugins](/plugins)** | .NET 8+ | Server-side business logic (plugins, custom APIs) |
-| **[PCF](/pcf)** | TypeScript, React | Custom UI controls (PowerApps Component Framework) |
-| **[Client Scripts](/client-scripts)** | TypeScript | Form and ribbon customizations |
-| **[Azure Functions](/functions)** | .NET/Node.js | Integration APIs and background processing |
-| **[Solutions](/solutions)** | XML | Dataverse solution exports |
-| **[Terraform](/terraform)** | HCL | Infrastructure as Code for Azure resources |
+| **[Plugins](/src/plugins)** | .NET 8+ | Server-side business logic (plugins, custom APIs) |
+| **[PCF](/src/pcf)** | TypeScript, React | Custom UI controls (PowerApps Component Framework) |
+| **[Client Scripts](/src/client-scripts)** | TypeScript | Form and ribbon customizations |
+| **[Azure Functions](/src/functions)** | .NET/Node.js | Integration APIs and background processing |
+| **[Solutions](/src/solutions)** | XML | Dataverse solution exports |
+| **[Terraform](/infra/terraform)** | HCL | Infrastructure as Code for Azure resources |
 
 ---
 
@@ -40,17 +40,18 @@ This monorepo contains all components for our Dynamics 365 / Dataverse solution:
 ```
 /
 ├── .github/              # GitHub Actions workflows and templates
-├── plugins/              # .NET Dataverse plugins and custom APIs
-├── pcf/                  # PowerApps Component Framework controls
-├── client-scripts/       # JavaScript/TypeScript for forms and ribbons
-├── functions/            # Azure Functions for integrations
-├── solutions/            # Dataverse solution exports
-├── terraform/            # Infrastructure as Code
 ├── docs/                 # Documentation and architecture decisions
 │   ├── architecture/     # ADRs (Architecture Decision Records)
 │   ├── developer-guide/  # Developer onboarding and guides
 │   └── standards/        # Coding standards and best practices
-├── scripts/              # Build and deployment helper scripts
+├── infra/                # Infrastructure as Code
+│   └── terraform/        # Terraform modules and configurations
+├── src/                  # Source code
+│   ├── client-scripts/   # JavaScript/TypeScript for forms and ribbons
+│   ├── functions/        # Azure Functions for integrations
+│   ├── pcf/              # PowerApps Component Framework controls
+│   ├── plugins/          # .NET Dataverse plugins and custom APIs
+│   └── solutions/        # Dataverse solution exports
 └── README.md             # This file
 ```
 
@@ -77,116 +78,116 @@ git clone https://github.com/ivoarnet/test-msd-monorepo.git
 cd test-msd-monorepo
 
 # Install Node.js dependencies (PCF, client scripts)
-cd pcf && npm install && cd ..
-cd client-scripts && npm install && cd ..
+cd src/pcf && npm install && cd ../..
+cd src/client-scripts && npm install && cd ../..
 
 # Restore .NET dependencies (plugins)
-cd plugins && dotnet restore && cd ..
+cd src/plugins && dotnet restore && cd ../..
 
 # Restore Azure Functions dependencies
-cd functions && dotnet restore && cd ..
+cd src/functions && dotnet restore && cd ../..
 
 # Initialize Terraform (optional, for infrastructure)
-cd terraform/environments/dev && terraform init && cd ../../..
+cd infra/terraform/environments/dev && terraform init && cd ../../../..
 ```
 
 ### Building Components
 
 ```bash
 # Build plugins
-cd plugins && dotnet build && cd ..
+cd src/plugins && dotnet build && cd ../..
 
 # Build PCF components
-cd pcf && npm run build && cd ..
+cd src/pcf && npm run build && cd ../..
 
 # Build client scripts
-cd client-scripts && npm run build && cd ..
+cd src/client-scripts && npm run build && cd ../..
 
 # Build Azure Functions
-cd functions && dotnet build && cd ..
+cd src/functions && dotnet build && cd ../..
 ```
 
 ### Running Tests
 
 ```bash
 # Test plugins
-cd plugins && dotnet test && cd ..
+cd src/plugins && dotnet test && cd ../..
 
 # Test client scripts
-cd client-scripts && npm test && cd ..
+cd src/client-scripts && npm test && cd ../..
 
 # Test Azure Functions
-cd functions && dotnet test && cd ..
+cd src/functions && dotnet test && cd ../..
 ```
 
 ---
 
 ## 🧩 Components
 
-### [Plugins](/plugins)
+### [Plugins](/src/plugins)
 **.NET server-side logic for Dataverse**
 
 - Business logic triggered by Dataverse events (Create, Update, Delete)
 - Custom APIs for specialized operations
-- [Learn more →](/plugins/README.md)
+- [Learn more →](/src/plugins/README.md)
 
 **Key Technologies**: .NET 8+, Microsoft.CrmSdk.CoreAssemblies, IPlugin
 
 ---
 
-### [PCF](/pcf)
+### [PCF](/src/pcf)
 **Custom UI controls for model-driven apps**
 
 - Reusable components (data grids, file uploaders, charts)
 - Built with TypeScript and React
-- [Learn more →](/pcf/README.md)
+- [Learn more →](/src/pcf/README.md)
 
 **Key Technologies**: PowerApps Component Framework, TypeScript, React, Fluent UI
 
 ---
 
-### [Client Scripts](/client-scripts)
+### [Client Scripts](/src/client-scripts)
 **Form and ribbon JavaScript/TypeScript**
 
 - Form lifecycle logic (onLoad, onSave, onChange)
 - Ribbon button actions
 - Business rules and validations
-- [Learn more →](/client-scripts/README.md)
+- [Learn more →](/src/client-scripts/README.md)
 
 **Key Technologies**: TypeScript, Xrm.WebApi, Dataverse Web API
 
 ---
 
-### [Azure Functions](/functions)
+### [Azure Functions](/src/functions)
 **Integration APIs and background jobs**
 
 - REST APIs for external integrations
 - Scheduled jobs (e.g., nightly data sync)
 - Event-driven processing
-- [Learn more →](/functions/README.md)
+- [Learn more →](/src/functions/README.md)
 
 **Key Technologies**: Azure Functions, .NET/Node.js, Azure Service Bus
 
 ---
 
-### [Solutions](/solutions)
+### [Solutions](/src/solutions)
 **Dataverse solution exports**
 
 - Source-controlled solution XML
 - Managed and unmanaged solutions
-- [Learn more →](/solutions/README.md)
+- [Learn more →](/src/solutions/README.md)
 
 **Key Technologies**: Power Platform CLI, Dataverse Solutions
 
 ---
 
-### [Terraform](/terraform)
+### [Terraform](/infra/terraform)
 **Infrastructure as Code**
 
 - Azure resources (Function Apps, App Service Plans, Key Vault)
 - API Management configuration
 - Environment management (dev, test, prod)
-- [Learn more →](/terraform/README.md)
+- [Learn more →](/infra/terraform/README.md)
 
 **Key Technologies**: Terraform, Azure Provider
 
